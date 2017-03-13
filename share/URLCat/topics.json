@@ -1,0 +1,4 @@
+[{"lat": 0,"lng": 0,"topics": [{"keyword": "trump", "weight": 0.9}, {"keyword": "america", "weight": 0.4}, {"keyword": "elections", "weight": 0.1}]},
+{"lat": 1,"lng": 0,"topics": [{"keyword": "trump", "weight": 0.9}, {"keyword": "america", "weight": 0.4}, {"keyword": "elections", "weight": 0.1}]},
+{"lat": 1,"lng": 1,"topics": [{"keyword": "trump", "weight": 0.9}, {"keyword": "cat", "weight": 0.4}, {"keyword": "elections", "weight": 0.1}]},
+{"lat": 0,"lng": 1,"topics": [{"keyword": "trump", "weight": 0.9}, {"keyword": "cat", "weight": 0.4}, {"keyword": "dog", "weight": 0.1}]}]

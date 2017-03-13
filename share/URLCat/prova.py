@@ -1,13 +1,8 @@
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 
-
-def setEnvironment():
-    """
-    Set the spark environment
-    """
-    context = SparkContext()
-    context.setLogLevel("WARN")
+context = SparkContext()
+context.setLogLevel("WARN")
 
 def createTile(data, bottomleft, topright):
     """
@@ -102,10 +97,10 @@ def splitTile(bottomleft, topright, step):
 
     return subtiles
 
-
-setEnvironment()
 spark = SparkSession.builder.getOrCreate()
-data = spark.read.json("file:///opt/hdfs/URLCat/topics.jsonl")
+jsonRDD = context.wholeTextFiles("file:///opt/hdfs/URLCat/topics.json").map(lambda x: x[1]) # https://www.supergloo.com/fieldnotes/spark-sql-json-examples/ and http://stackoverflow.com/a/7889243/3482533
+data = spark.read.json(jsonRDD)
+data.printSchema()
 
 bottomleft = (0, 0)
 topright = (1, 1)
