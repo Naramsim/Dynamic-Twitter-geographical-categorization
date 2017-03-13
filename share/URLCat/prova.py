@@ -30,7 +30,7 @@ def parse():
 
     BOTTOM_LEFT = (args.bottomleftx, args.bottomlefty)
     TOP_RIGHT = (args.toprightx, args.toprighty)
-    TILE_SIZE = tilesize
+    TILE_SIZE = args.tilesize
 
 def _positive_float(value):
     """
@@ -105,7 +105,7 @@ def computeTopic(tile):
     mappedTopics = rawTopics.rdd.flatMap(lambda rdd: rdd[0]).map(lambda topic: (topic.keyword, topic.weight))
     reducedTopics = mappedTopics.reduceByKey(lambda prv, nxt: round(prv+nxt, 2))
     tile["topics"] = reducedTopics.collect()
-    print(tile["data"].select("topics").collect())
+
     if tile["topics"]:
         tile["main"] = max(tile["topics"], key=(lambda item: item[1]))
     else:
@@ -165,6 +165,8 @@ def splitTile(bottomleft, topright, step):
 
     return subtiles
 
+
+parse()
 
 context = setGetContext()
 data = loadData(context)
