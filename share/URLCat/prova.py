@@ -17,7 +17,7 @@ def createTile(data, bottomleft, topright):
 
     xFiltered = data.filter(data.lat >= bottomleft[0]).filter(data.lat <= topright[0])
     xyFiltered = xFiltered.filter(data.lng >= bottomleft[1]).filter(data.lng <= topright[1])
-
+    
     tile = {"coords": (bottomleft, topright), "data": xyFiltered}
 
     return tile
@@ -35,9 +35,9 @@ def computeTopic(tile):
 
     rawTopics = tile["data"].select("topics")
     mappedTopics = rawTopics.rdd.flatMap(lambda x: x[0]).map(lambda topic: (topic.keyword, topic.weight))
-    reducedTopics = mappedTopics.reduceByKey(lambda prv, nxt: prv+nxt)
+    reducedTopics = mappedTopics.reduceByKey(lambda prv, nxt: round(prv+nxt, 2))
     tile["topics"] = reducedTopics.collect()
-
+    print(tile["data"].select("topics").collect())
     if tile["topics"]:
         tile["main"] = max(tile["topics"], key=(lambda item: item[1]))
     else:
@@ -82,31 +82,31 @@ def splitTile(bottomleft, topright, step):
     subtileXs = []
     while (coord < topright[0]):
         subtileXs.append(coord)
-        coord = coord+step
+        coord = round(coord+step, 2)
 
     coord = bottomleft[1]
     subtileYs = []
     while (coord < topright[1]):
         subtileYs.append(coord)
-        coord = coord+step
+        coord = round(coord+step, 2)
 
     for x in subtileXs:
         for y in subtileYs:
-            tile = ((x, y), (x+step, y+step))
+            tile = ((x, y), (min(topright[0], round(x+step, 2)), min(topright[1], round(y+step, 2))))
             subtiles.append(tile)
 
     return subtiles
 
 spark = SparkSession.builder.getOrCreate()
-jsonRDD = context.wholeTextFiles("file:///opt/hdfs/URLCat/topics.json").map(lambda x: x[1]) # https://www.supergloo.com/fieldnotes/spark-sql-json-examples/ and http://stackoverflow.com/a/7889243/3482533
+jsonRDD = context.wholeTextFiles("file:///opt/hdfs/URLCat/topics.fake.json").map(lambda x: x[1]) # https://www.supergloo.com/fieldnotes/spark-sql-json-examples/ and http://stackoverflow.com/a/7889243/3482533
 data = spark.read.json(jsonRDD)
 data.printSchema()
 
-bottomleft = (0, 0)
+bottomleft = (0.75, 0.75)
 topright = (1, 1)
-step = 0.5
+step = 0.05
 
-computeTileTopic(data, topright, bottomleft)
+computeTileTopic(data, bottomleft, topright)
 
 subtiles = []
 subtiles = splitTile(bottomleft, topright, step)
