@@ -105,7 +105,7 @@ def splitTile(bottomleft, topright, step):
 
 setEnvironment()
 spark = SparkSession.builder.getOrCreate()
-data = spark.read.json("file:///opt/hdfs/URLCat/topics.json")
+data = spark.read.json("file:///opt/hdfs/URLCat/topics.jsonl")
 
 bottomleft = (0, 0)
 topright = (1, 1)
