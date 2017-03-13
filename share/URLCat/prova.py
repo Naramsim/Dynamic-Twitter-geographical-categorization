@@ -1,8 +1,78 @@
+import argparse
+
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 
-context = SparkContext()
-context.setLogLevel("WARN")
+
+BOTTOM_LEFT = None
+TOP_RIGHT = None
+TILE_SIZE = None
+
+def parse():
+    """
+    Parse the given arguments into global variables.
+    """
+
+    global BOTTOM_LEFT
+    global TOP_RIGHT
+    global TILE_SIZE
+
+    parser = argparse.ArgumentParser(description="compute the most relevant topics in a custom grid within a square geographic area", formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30))
+    parser.add_argument("-v", "--version", action="version", version="0.0.0")
+
+    parser.add_argument("bottomleftx", type=_positive_float, help="the x coordinate of the bottom-left vertex of the main geographic area")
+    parser.add_argument("bottomlefty", type=_positive_float, help="the y coordinate of the bottom-left vertex of the main geographic area")
+    parser.add_argument("toprightx", type=_positive_float, help="the x coordinate of the top-right vertex of the main geographic area")
+    parser.add_argument("toprighty", type=_positive_float, help="the y coordinate of the top-right vertex of the main geographic area")
+    parser.add_argument("tilesize", type=_positive_float, help="the size of each square tile that form the grid within the main geographic area")
+
+    args = parser.parse_args()
+
+    BOTTOM_LEFT = (args.bottomleftx, args.bottomlefty)
+    TOP_RIGHT = (args.toprightx, args.toprighty)
+    TILE_SIZE = tilesize
+
+def _positive_float(value):
+    """
+    Check that the provided float value is positive.
+
+    :return: The unchanged float value.
+    """
+
+    number = float(value)
+    if number < 0:
+        raise argparse.ArgumentTypeError("number must be positive")
+
+    return number
+
+def setGetContext():
+    """
+    Set the spark environment.
+
+    :return: The current SparkContext.
+    """
+
+    context = SparkContext()
+    context.setLogLevel("WARN")
+
+    return context
+
+def loadData(context):
+    """
+    Loads the data from a .json file. See https://www.supergloo.com/fieldnotes/spark-sql-json-examples/ and http://stackoverflow.com/a/7889243/3482533.
+
+    :param context: The current SparkContext.
+
+    :return: A DataFrame representing the .json file.
+    :prints debug: The parsed data's schema.
+    """
+
+    spark = SparkSession.builder.getOrCreate()
+    json = context.wholeTextFiles("file:///opt/hdfs/URLCat/topics.fake.json").map(lambda txt: txt[1])
+    data = spark.read.json(json)
+
+    data.printSchema()
+    return data
 
 def createTile(data, bottomleft, topright):
     """
@@ -17,7 +87,7 @@ def createTile(data, bottomleft, topright):
 
     xFiltered = data.filter(data.lat >= bottomleft[0]).filter(data.lat <= topright[0])
     xyFiltered = xFiltered.filter(data.lng >= bottomleft[1]).filter(data.lng <= topright[1])
-    
+
     tile = {"coords": (bottomleft, topright), "data": xyFiltered}
 
     return tile
@@ -29,12 +99,10 @@ def computeTopic(tile):
     :param tile: The tile of which to compute the topic.
 
     :return: The dict representing the provided Tile, with the following properties added: "topics", a List of (topic, relevance) tuples containing the different topics and the relevance of each topic within the Tile; "main", a single (topic, relevance) tuple representing the most relevant topic within the Tile, or False if no topics are available within the Tile.
-
-    :todo: Add weighting to topics, possibly by directly counting the weight available in the dataset.
     """
 
     rawTopics = tile["data"].select("topics")
-    mappedTopics = rawTopics.rdd.flatMap(lambda x: x[0]).map(lambda topic: (topic.keyword, topic.weight))
+    mappedTopics = rawTopics.rdd.flatMap(lambda rdd: rdd[0]).map(lambda topic: (topic.keyword, topic.weight))
     reducedTopics = mappedTopics.reduceByKey(lambda prv, nxt: round(prv+nxt, 2))
     tile["topics"] = reducedTopics.collect()
     print(tile["data"].select("topics").collect())
@@ -97,18 +165,12 @@ def splitTile(bottomleft, topright, step):
 
     return subtiles
 
-spark = SparkSession.builder.getOrCreate()
-jsonRDD = context.wholeTextFiles("file:///opt/hdfs/URLCat/topics.fake.json").map(lambda x: x[1]) # https://www.supergloo.com/fieldnotes/spark-sql-json-examples/ and http://stackoverflow.com/a/7889243/3482533
-data = spark.read.json(jsonRDD)
-data.printSchema()
 
-bottomleft = (0.75, 0.75)
-topright = (1, 1)
-step = 0.05
+context = setGetContext()
+data = loadData(context)
 
-computeTileTopic(data, bottomleft, topright)
+computeTileTopic(data, BOTTOM_LEFT, TOP_RIGHT)
 
-subtiles = []
-subtiles = splitTile(bottomleft, topright, step)
+subtiles = splitTile(BOTTOM_LEFT, TOP_RIGHT, TILE_SIZE)
 computed = map(lambda tile: computeTileTopic(data, tile[0], tile[1]), subtiles)
 print(list(computed))
