@@ -23,7 +23,7 @@ def createTile(data, bottomleft, topright):
     xFiltered = data.filter(data.lat >= bottomleft[0]).filter(data.lat <= topright[0])
     xyFiltered = xFiltered.filter(data.lng >= bottomleft[1]).filter(data.lng <= topright[1])
 
-    tile = {"coords": (bottomleft, topright), "data": square}
+    tile = {"coords": (bottomleft, topright), "data": xyFiltered}
 
     return tile
 
@@ -39,8 +39,8 @@ def computeTopic(tile):
     """
 
     rawTopics = tile["data"].select("topics")
-    mappedTopics = rawTopics.rdd.flatMap(lambda x: x[0]).map(lambda topic: (topic.keyword, 1))
-    reducedTopics = topics.reduceByKey(lambda prv, nxt: prv+nxt)
+    mappedTopics = rawTopics.rdd.flatMap(lambda x: x[0]).map(lambda topic: (topic.keyword, topic.weight))
+    reducedTopics = mappedTopics.reduceByKey(lambda prv, nxt: prv+nxt)
     tile["topics"] = reducedTopics.collect()
 
     if tile["topics"]:
