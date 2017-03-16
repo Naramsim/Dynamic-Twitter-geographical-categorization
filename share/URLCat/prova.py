@@ -1,4 +1,9 @@
 import argparse
+import os
+import re
+import sys
+
+import time
 
 from pyspark import SparkContext
 from pyspark.sql import SparkSession, DataFrame
@@ -69,7 +74,7 @@ def loadData(context):
 
     spark = SparkSession.builder.getOrCreate()
     #json = context.wholeTextFiles("file:///opt/hdfs/URLCat/topics.json").map(lambda txt: txt[1])
-    json = context.textFile("file:///opt/hdfs/URLCat/topics.json")
+    json = context.textFile("file:///opt/hdfs/URLCat/topics.fake.json")
     data = spark.read.json(json)
     data.show()
 
@@ -113,11 +118,9 @@ def computeTopicDF(tile):
     :todo: Specify this is valid with DataFrames.
     """
 
-    print(tile["data"])
     rawTopics = tile["data"].select("topics")
     mappedTopics = rawTopics.rdd.flatMap(lambda rdd: rdd[0]).map(lambda topic: (topic.keyword, topic.weight))
     reducedTopics = mappedTopics.reduceByKey(lambda prv, nxt: round(prv+nxt, 2))
-
     
     tile["topics"] = reducedTopics.collect()
 
@@ -239,14 +242,11 @@ def computeGrid(data):
 def computeArea(context, grid, bottomleft, topright):
     """
     """
-
+    print(bottomleft, topright)
     computed = computeAreaTopic(context, grid, bottomleft, topright)
 
     return computed
 
-def delDF(obj):
-    obj.pop('data', None)
-    return obj
 
 def GridToDict(context, grid):
     """
@@ -267,7 +267,18 @@ data = loadData(context)
 
 grid = computeGrid(data)
 grid = GridToDict(context, grid)
-area = computeArea(context, grid, (0.5, 0.5), (1, 1))
+print("map built")
+print(sys.version_info)
+modified = 0
+while (True):
+    time.sleep(0.5)
+    if not modified == os.stat("input.txt").st_mtime:
+        file = open("input.txt")
+        args = file.read()
+        groups = re.match(r"(\d+(?:\.\d+)?) (\d+(?:\.\d+)?) (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)", args)
+        area = computeArea(context, grid, (float(groups.group(1)), float(groups.group(2))), (float(groups.group(3)), float(groups.group(4))))
+        #file.close()
+        modified = os.stat("input.txt").st_mtime
 
 #print(grid)
 #print("-")

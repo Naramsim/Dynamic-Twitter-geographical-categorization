@@ -1,4 +1,5 @@
 share/name
 share/checkpoint
 share/data
+share/URLCat/topics.fake.json
 node_modules
