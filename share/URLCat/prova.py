@@ -76,9 +76,8 @@ def loadData(context):
     #json = context.wholeTextFiles("file:///opt/hdfs/URLCat/topics.json").map(lambda txt: txt[1])
     json = context.textFile("file:///opt/hdfs/URLCat/topics.fake.json")
     data = spark.read.json(json)
-    data.show()
 
-    data.printSchema()
+    print("Data read")
     return data
 
 def createTileDF(data, bottomleft, topright):

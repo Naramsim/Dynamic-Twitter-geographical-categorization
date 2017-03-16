@@ -2,7 +2,7 @@ version: "2"
 
 services:
   master:
-    image: singularities/spark
+    build: .
     command: start-spark master
     hostname: master
     ports:
@@ -14,7 +14,7 @@ services:
       - ./share:/opt/hdfs
     cpuset: "0"
   # worker:
-  #   image: singularities/spark
+  #   build: .
   #   command: start-spark worker master
   #   environment:
   #     SPARK_WORKER_CORES: 1
@@ -24,35 +24,35 @@ services:
   #   volumes:
   #     - ./share:/opt/hdfs
   worker1:
-    image: singularities/spark
+    build: .
     command: start-spark worker master
     environment:
       SPARK_WORKER_CORES: 1
-      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_MEMORY: 2g
     links:
       - master
     volumes:
       - ./share:/opt/hdfs
     cpuset: "1"
   worker2:
-    image: singularities/spark
+    build: .
     command: start-spark worker master
     environment:
       SPARK_WORKER_CORES: 1
-      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_MEMORY: 2g
     links:
       - master
     volumes:
       - ./share:/opt/hdfs
     cpuset: "2"
-  worker3:
-    image: singularities/spark
-    command: start-spark worker master
-    environment:
-      SPARK_WORKER_CORES: 1
-      SPARK_WORKER_MEMORY: 1g
-    links:
-      - master
-    volumes:
-      - ./share:/opt/hdfs
-    cpuset: "3"
+  # worker3:
+  #   build: .
+  #   command: start-spark worker master
+  #   environment:
+  #     SPARK_WORKER_CORES: 1
+  #     SPARK_WORKER_MEMORY: 2g
+  #   links:
+  #     - master
+  #   volumes:
+  #     - ./share:/opt/hdfs
+  #   cpuset: "3"
