@@ -45,14 +45,9 @@ services:
     volumes:
       - ./share:/opt/hdfs
     cpuset: "2"
-  # worker3:
-  #   build: .
-  #   command: start-spark worker master
-  #   environment:
-  #     SPARK_WORKER_CORES: 1
-  #     SPARK_WORKER_MEMORY: 2g
-  #   links:
-  #     - master
-  #   volumes:
-  #     - ./share:/opt/hdfs
-  #   cpuset: "3"
+  redis:
+    image: 'bitnami/redis:latest'
+    ports:
+      - '6379:6379'
+    volumes:
+      - './share/redis_data:/bitnami/redis'

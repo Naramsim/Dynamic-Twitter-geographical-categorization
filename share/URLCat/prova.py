@@ -2,6 +2,8 @@ import argparse
 import os
 import re
 import sys
+import json
+import redis
 
 import time
 
@@ -12,6 +14,8 @@ from pyspark.sql import SparkSession, DataFrame
 BOTTOM_LEFT = None
 TOP_RIGHT = None
 TILE_SIZE = None
+MULT = 10000.0
+r = redis.StrictRedis(host='10.0.75.2', port=6379, db=0)
 
 def parse():
     """
@@ -157,16 +161,18 @@ def createArea(grid, bottomleft, topright):
 
     area = {"coords": (bottomleft, topright), "data": []}
 
-    i = bottomleft[0]-(bottomleft[0]%TILE_SIZE)
-    while (i <= topright[0]):
-        j = bottomleft[1]-(bottomleft[1]%TILE_SIZE)
-        while (j <= topright[1]):
+    i = bottomleft[0] - ( (int(bottomleft[0] * MULT) % int(TILE_SIZE * MULT)) / MULT)
+    while (i < topright[0]):
+        j = bottomleft[1] - ( (int(bottomleft[1] * MULT) % int(TILE_SIZE * MULT)) / MULT)
+        while (j < topright[1]):
             key = str(i)+"X"+str(j)
+            print(key)
             if key in grid: 
                 area["data"].append(grid[key])
+                #area["data"].append(json.loads(r.get(key)))
             j += TILE_SIZE
         i += TILE_SIZE
-            
+
     return area
 
 def computeTopicDict(context, tile):
@@ -253,8 +259,10 @@ def GridToDict(context, grid):
 
     dictionary = {}
     for tile in grid:
+        del tile["data"]
         key = str(tile["coords"][0][0])+"X"+str(tile["coords"][0][1])
         dictionary[key] = tile
+        #r.set(key, json.dumps(tile))
 
     return dictionary
 
@@ -275,7 +283,9 @@ while (True):
         file = open("input.txt")
         args = file.read()
         groups = re.match(r"(\d+(?:\.\d+)?) (\d+(?:\.\d+)?) (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)", args)
+        start = time.time()
         area = computeArea(context, grid, (float(groups.group(1)), float(groups.group(2))), (float(groups.group(3)), float(groups.group(4))))
+        print(time.time() - start)
         #file.close()
         modified = os.stat("input.txt").st_mtime
 
