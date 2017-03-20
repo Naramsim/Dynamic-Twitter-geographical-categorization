@@ -26,7 +26,7 @@ COPY spark-env.sh $SPARK_HOME/conf/spark-env.sh
 ENV PATH=$PATH:$SPARK_HOME/bin
 
 # Ports
-EXPOSE 6066 7077 8080 8081
+EXPOSE 6066 7077 8080 8081 5000
 
 # Copy start script
 COPY start-spark /opt/util/bin/start-spark
@@ -44,4 +44,4 @@ RUN echo '#!/usr/bin/env bash' > /usr/bin/master \
   && chmod +x /usr/bin/worker
 
 # Custom redis calls
-RUN pip install redis hiredis
+RUN pip install redis hiredis Flask

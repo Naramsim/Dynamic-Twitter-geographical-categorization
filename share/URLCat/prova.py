@@ -14,6 +14,8 @@ from pyspark.sql import SparkSession, DataFrame
 BOTTOM_LEFT = None
 TOP_RIGHT = None
 TILE_SIZE = None
+context = None
+grid = None
 MULT = 10000.0
 r = redis.StrictRedis(host='10.0.75.2', port=6379, db=0)
 
@@ -252,6 +254,12 @@ def computeArea(context, grid, bottomleft, topright):
 
     return computed
 
+def compute(bottomleft, topright):
+    """
+    """
+    computed = computeArea(context, grid, bottomleft, topright)
+
+    return computed
 
 def GridToDict(context, grid):
     """
@@ -267,28 +275,29 @@ def GridToDict(context, grid):
     return dictionary
 
 
-parse()
+def init():
 
-context = setGetContext()
-data = loadData(context)
+    global context
+    global grid
 
-grid = computeGrid(data)
-grid = GridToDict(context, grid)
-print("map built")
-print(sys.version_info)
-modified = 0
-while (True):
-    time.sleep(0.5)
-    if not modified == os.stat("input.txt").st_mtime:
-        file = open("input.txt")
-        args = file.read()
-        groups = re.match(r"(\d+(?:\.\d+)?) (\d+(?:\.\d+)?) (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)", args)
-        start = time.time()
-        area = computeArea(context, grid, (float(groups.group(1)), float(groups.group(2))), (float(groups.group(3)), float(groups.group(4))))
-        print(time.time() - start)
-        #file.close()
-        modified = os.stat("input.txt").st_mtime
+    parse()
+    context = setGetContext()
+    data = loadData(context)
 
-#print(grid)
-#print("-")
-#print(area)
+    grid = computeGrid(data)
+    grid = GridToDict(context, grid)
+    print("map built")
+    print(sys.version_info)
+    modified = 0
+
+# while (True):
+#     time.sleep(0.5)
+#     if not modified == os.stat("input.txt").st_mtime:
+#         file = open("input.txt")
+#         args = file.read()
+#         groups = re.match(r"(\d+(?:\.\d+)?) (\d+(?:\.\d+)?) (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)", args)
+#         start = time.time()
+#         area = computeArea(context, grid, (float(groups.group(1)), float(groups.group(2))), (float(groups.group(3)), float(groups.group(4))))
+#         print(time.time() - start)
+#         #file.close()
+#         modified = os.stat("input.txt").st_mtime
