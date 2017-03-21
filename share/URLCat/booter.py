@@ -25,11 +25,11 @@ def parse():
     parser = argparse.ArgumentParser(description="compute the most relevant topics in a custom grid within a square geographic area", formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30))
     parser.add_argument("-v", "--version", action="version", version="0.0.0")
 
-    parser.add_argument("bottom-left-x", type=_positive_float, help="the x coordinate of the bottom-left vertex of the main geographic area")
-    parser.add_argument("bottom-left-y", type=_positive_float, help="the y coordinate of the bottom-left vertex of the main geographic area")
-    parser.add_argument("top-right-x", type=_positive_float, help="the x coordinate of the top-right vertex of the main geographic area")
-    parser.add_argument("top-right-y", type=_positive_float, help="the y coordinate of the top-right vertex of the main geographic area")
-    parser.add_argument("tile-size", type=_positive_float, help="the size of each square tile that forms the grid within the main geographic area")
+    parser.add_argument("bottomleftx", type=_positive_float, help="the x coordinate of the bottomleft vertex of the main geographic area")
+    parser.add_argument("bottomlefty", type=_positive_float, help="the y coordinate of the bottomleft vertex of the main geographic area")
+    parser.add_argument("toprightx", type=_positive_float, help="the x coordinate of the topright vertex of the main geographic area")
+    parser.add_argument("toprighty", type=_positive_float, help="the y coordinate of the topright vertex of the main geographic area")
+    parser.add_argument("tilesize", type=_positive_float, help="the size of each square tile that forms the grid within the main geographic area")
 
     args = parser.parse_args()
 
@@ -48,6 +48,7 @@ def init_redis(host="127.0.0.1", port=6379):
     global REDIS
 
     REDIS = redis.StrictRedis(host=host, port=port, db=0)
+    REDIS.flushdb()
 
 def init_context():
     """

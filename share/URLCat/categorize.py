@@ -12,10 +12,10 @@ def build_grid():
     """
     Builds the initial grid within the main map area, then used by the categorization algorithm.
 
-    :prints log: When the grid has been correctly built.
+    s log: When the grid has been correctly built.
     """
 
-    data = _load_data("file:///opt/hdfs/URLCat/topics.fake.json")
+    data = _load_data("file:///opt/hdfs/URLCat/topics.json")
     grid = _compute_grid(data)
     _save_grid(grid)
 
@@ -29,7 +29,7 @@ def _load_data(path="file:///opt/hdfs/URLCat/data.json"):
 
     :return: A DataFrame representing the .json file.
 
-    :prints log: When the data has been succesfully loaded.
+    s log: When the data has been succesfully loaded.
     """
 
     spark = SparkSession.builder.getOrCreate()
@@ -67,7 +67,7 @@ def _save_grid(grid):
 
 def _split_area(bottomleft, topright, step):
     """
-    Splits a square area in multiple square sub-Tiles.
+    Splits a square area in booter.multiple square sub-Tiles.
 
     :param bottomleft: (x, y) tuple representing the bottom.left vertex of the Tile.
     :param topright: (x, y) tuple representing the top-right vertex of the Tile.
@@ -108,7 +108,7 @@ def _compute_tile_topic(data, bottomleft, topright):
     :return: A dict representing a Tile, with the following properties: "coords", a tuple containing the tuples representing the bottom-left and top-right vertices of the Tile; "topics", a list of (topic, relevance) tuples containing the different topics and the relevance of each topic within the Tile; "main", a single (topic, relevance) tuple representing the most relevant topic within the Tile.
 
     :todo: Switch to a lat,long coordinates system.
-    :prints debug: The coordinates specifying the Tile, and the computed most relevant topic within it.
+    s debug: The coordinates specifying the Tile, and the computed most relevant topic within it.
     """
 
     tile = _filter_tile_data(data, bottomleft, topright)
@@ -129,12 +129,12 @@ def _filter_tile_data(data, bottomleft, topright):
     :return: A dict representing a Tile, with the following properties: "coords", a tuple containing the tuples representing the bottom-left and top-right vertices of the Tile; "data", a DataFrame containing all the data available within the Tile.
     """
 
-    if (topright[0] == TOP_RIGHT[0]):
+    if (topright[0] == booter.TOP_RIGHT[0]):
         x_filtered = data.filter(data.lat >= bottomleft[0]).filter(data.lat <= topright[0])
     else:
         x_filtered = data.filter(data.lat >= bottomleft[0]).filter(data.lat < topright[0])
 
-    if (topright[1] == TOP_RIGHT[1]):
+    if (topright[1] == booter.TOP_RIGHT[1]):
         xy_filtered = x_filtered.filter(data.lng >= bottomleft[1]).filter(data.lng <= topright[1])
     else:
         xy_filtered = x_filtered.filter(data.lng >= bottomleft[1]).filter(data.lng < topright[1])
@@ -157,6 +157,7 @@ def _extract_tile_topic(tile):
     reduced_topics = mapped_topics.reduceByKey(lambda prv, nxt: round(prv+nxt, 2))
 
     tile["topics"] = reduced_topics.collect()
+    del tile["data"]
 
     if tile["topics"]:
         tile["main"] = max(tile["topics"], key=(lambda item: item[1]))
@@ -191,16 +192,18 @@ def _filter_area_data(bottomleft, topright):
     """
 
     area = {"coords": (bottomleft, topright), "data": []}
+    print(area)
 
-    i = bottomleft[0] - ((int(bottomleft[0]*MULT) % int(TILE_SIZE*MULT))/MULT)
+    i = bottomleft[0] - ((int(bottomleft[0]*booter.MULT) % int(booter.TILE_SIZE*booter.MULT))/booter.MULT)
     while (i < topright[0]):
-        j = bottomleft[1] - ((int(bottomleft[1]*MULT) % int(TILE_SIZE*MULT))/MULT)
+        j = bottomleft[1] - ((int(bottomleft[1]*booter.MULT) % int(booter.TILE_SIZE*booter.MULT))/booter.MULT)
         while (j < topright[1]):
             key = str(i)+"X"+str(j)
-            if key in grid:
-                area["data"].append(json.loads(booter.REDIS.get(key)))
-            j += TILE_SIZE
-        i += TILE_SIZE
+            value = booter.REDIS.get(key)
+            if value:
+                area["data"].append(json.loads(value))
+            j += booter.TILE_SIZE
+        i += booter.TILE_SIZE
 
     return area
 
@@ -213,7 +216,7 @@ def _extract_area_topic(area):
     :return: The dict representing the provided area, with the following properties added: "topics", a list of (topic, relevance) tuples containing the different topics and the relevance of each topic within the area; "main", a single (topic, relevance) tuple representing the most relevant topic within the area. If no topics are available within the area, False is returned instead of the dict.
     """
 
-    raw_topics = context.parallelize(map(lambda tile: tile["topics"], area["data"]))
+    raw_topics = booter.CONTEXT.parallelize(map(lambda tile: tile["topics"], area["data"]))
     mapped_topics = raw_topics.flatMap(lambda topic: topic)
     reduced_topics = mapped_topics.reduceByKey(lambda prv, nxt: round(prv+nxt, 2))
 
