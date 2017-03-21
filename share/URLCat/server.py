@@ -10,7 +10,8 @@ booter.parse()
 booter.init_redis("10.0.75.2")
 booter.init_context()
 
-categorize.build_grid()
+if booter.GENERATE:
+    categorize.build_grid()
 
 app = Flask(__name__)
 

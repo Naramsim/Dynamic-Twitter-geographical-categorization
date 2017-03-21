@@ -4,6 +4,8 @@ import redis
 from pyspark import SparkContext
 
 
+GENERATE = False
+
 BOTTOM_LEFT = None
 TOP_RIGHT = None
 TILE_SIZE = None
@@ -30,9 +32,11 @@ def parse():
     parser.add_argument("toprightx", type=_positive_float, help="the x coordinate of the topright vertex of the main geographic area")
     parser.add_argument("toprighty", type=_positive_float, help="the y coordinate of the topright vertex of the main geographic area")
     parser.add_argument("tilesize", type=_positive_float, help="the size of each square tile that forms the grid within the main geographic area")
+    parser.add_argument("-g", "--generate", action="store_true", help="generate a new grid in the specified area")
 
     args = parser.parse_args()
 
+    GENERATE = args.generate
     BOTTOM_LEFT = (args.bottomleftx, args.bottomlefty)
     TOP_RIGHT = (args.toprightx, args.toprighty)
     TILE_SIZE = args.tilesize
@@ -48,7 +52,8 @@ def init_redis(host="127.0.0.1", port=6379):
     global REDIS
 
     REDIS = redis.StrictRedis(host=host, port=port, db=0)
-    REDIS.flushdb()
+    if GENERATE:
+        REDIS.flushdb()
 
 def init_context():
     """
