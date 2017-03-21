@@ -1,25 +1,35 @@
-import prova
+import categorize
+import booter
 import time
 from flask import Flask
 from flask import request
 from flask import jsonify
 
-prova.init()
+
+booter.parse()
+booter.init_redis("10.0.75.2")
+booter.init_context()
+
+categorize.build_grid()
+
 app = Flask(__name__)
 
 @app.route('/')
 def summary():
-    # http://10.0.75.1:5000/?x0=0&x1=0&y0=1&y1=1
-    bottomright0 = float(request.args.get('x0'))
-    bottomright1 = float(request.args.get('x1'))
-    topright0 = float(request.args.get('y0'))
-    topright1 = float(request.args.get('y1'))
-    if (1):
+    # http://10.0.75.1:5000/?x0=0&y0=0&x1=1&y1=1
+    bottomleft_x = float(request.args.get('x0'))
+    bottomleft_y = float(request.args.get('yo'))
+    topright_x = float(request.args.get('x1'))
+    topright_y = float(request.args.get('y1'))
+
+    if (bottomleft_x is not None and bottomleft_y is not None and topright_x is not None and topright_y is not None and):
         start = time.time()
-        d = prova.compute((bottomright0, bottomright1), (topright0, topright1))
-        return jsonify({"main":d["main"], "topics":d["topics"], "duration": (time.time() - start)})
+        result = categorize.compute_area((bottomleft_x, bottomleft_y), (topright_x, topright_y))
+        end = time.time()
+
+        return jsonify({"main": result["main"], "topics": result["topics"], "duration": start-end})
     else:
         return "Bad request"
 
 if __name__ == "__main__":
-    app.run(host= '0.0.0.0')
+    app.run(host="0.0.0.0")
