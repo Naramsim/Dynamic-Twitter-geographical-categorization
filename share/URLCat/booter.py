@@ -20,6 +20,7 @@ def parse():
     Parses the given arguments into global variables.
     """
 
+    global GENERATE
     global BOTTOM_LEFT
     global TOP_RIGHT
     global TILE_SIZE

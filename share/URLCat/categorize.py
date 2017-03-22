@@ -15,13 +15,13 @@ def build_grid():
     s log: When the grid has been correctly built.
     """
 
-    data = _load_data("file:///opt/hdfs/URLCat/topics.json")
+    data = _load_data("file:///opt/hdfs/URLCat/data/topics.twitter.json")
     grid = _compute_grid(data)
     _save_grid(grid)
 
     log.success("grid built")
 
-def _load_data(path="file:///opt/hdfs/URLCat/data.json"):
+def _load_data(path="file:///opt/hdfs/URLCat/data/topics.json"):
     """
     Loads the data from a .json file. See https://www.supergloo.com/fieldnotes/spark-sql-json-examples/ and http://stackoverflow.com/a/7889243/3482533.
 
@@ -140,7 +140,7 @@ def _filter_tile_data(data, bottomleft, topright):
         xy_filtered = x_filtered.filter(data.lng >= bottomleft[1]).filter(data.lng < topright[1])
 
     tile = {"coords": (bottomleft, topright), "data": xy_filtered}
-
+    
     return tile
 
 def _extract_tile_topic(tile):

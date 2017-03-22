@@ -32,7 +32,7 @@ def summary():
         if result:
             return jsonify({"main": result["main"], "topics": result["topics"], "duration": end-start})
         else:
-            return jsonify({"main": None, "topics": None, "duration": start-end})
+            return jsonify({"main": None, "topics": None, "duration": end-start})
     else:
         return "Bad request"
 

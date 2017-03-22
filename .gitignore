@@ -2,6 +2,6 @@ share/name
 share/checkpoint
 share/data
 share/redis_data
-share/URLCat/topics.fake.json
+share/URLCat/data/*.json
 node_modules
 *.pyc
