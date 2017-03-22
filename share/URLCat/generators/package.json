@@ -1,0 +1,15 @@
+{
+  "name": "generators",
+  "version": "1.0.0",
+  "description": "",
+  "main": "generator.twitter.js",
+  "scripts": {
+    "start": "node generator.twitter.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "twit": "^2.2.5"
+  }
+}

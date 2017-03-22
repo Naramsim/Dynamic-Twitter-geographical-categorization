@@ -1,6 +1,6 @@
-var fs = require('fs')
-var keywords = ['Matteo Renzi', 'Atalanta Bergamasca Calcio', 'Nintendo Switch', 'Luciano Spalletti', 'Matteo Salvini', 'Associazione Sportiva Roma', 'Paesi Bassi', 'Palermo', 'Mark Zuckerberg', 'WhatsApp']
-var fake = []
+var fs = require('fs');
+var keywords = ['Matteo Renzi', 'Atalanta Bergamasca Calcio', 'Nintendo Switch', 'Luciano Spalletti', 'Matteo Salvini', 'Associazione Sportiva Roma', 'Paesi Bassi', 'Palermo', 'Mark Zuckerberg', 'WhatsApp'];
+var fake = [];
 
 for (var index = 0; index < 100000; index++) {
     fake.push({
@@ -11,7 +11,7 @@ for (var index = 0; index < 100000; index++) {
             { keyword: keywords[Math.floor(Math.random()*keywords.length)], weight: +Math.random().toFixed(2) },
             { keyword: keywords[Math.floor(Math.random()*keywords.length)], weight: +Math.random().toFixed(2) }
         ]
-    })
+    });
 }
 
 fs.writeFileSync('./share/URLCat/topics.fake.json', JSON.stringify(fake));
