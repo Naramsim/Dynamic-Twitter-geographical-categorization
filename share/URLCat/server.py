@@ -19,7 +19,6 @@ app = Flask(__name__)
 def summary():
     # http://10.0.75.1:5000/?x0=0&y0=0&x1=1&y1=1
     bottomleft_x = float(request.args.get('x0'))
-    print(request.args.get('y0'))
     bottomleft_y = float(request.args.get('y0'))
     topright_x = float(request.args.get('x1'))
     topright_y = float(request.args.get('y1'))

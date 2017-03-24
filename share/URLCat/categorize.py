@@ -110,12 +110,12 @@ def _compute_tile_topic(data, bottomleft, topright):
     :todo: Switch to a lat,long coordinates system.
     s debug: The coordinates specifying the Tile, and the computed most relevant topic within it.
     """
-
+    #print(data.select("topics").collect())
     tile = _filter_tile_data(data, bottomleft, topright)
     tile = _extract_tile_topic(tile)
 
     if tile:
-        print("{}: {}".format(tile["coords"], tile["main"]))
+        #print("{}: {}".format(tile["coords"], tile["topics"]))
         return tile
 
 def _filter_tile_data(data, bottomleft, topright):
@@ -130,17 +130,16 @@ def _filter_tile_data(data, bottomleft, topright):
     """
 
     if (topright[0] == booter.TOP_RIGHT[0]):
-        x_filtered = data.filter(data.lat >= bottomleft[0]).filter(data.lat <= topright[0])
+        x_filtered = data.filter(data.lng >= bottomleft[0]).filter(data.lng <= topright[0])
     else:
-        x_filtered = data.filter(data.lat >= bottomleft[0]).filter(data.lat < topright[0])
+        x_filtered = data.filter(data.lng >= bottomleft[0]).filter(data.lng < topright[0])
 
     if (topright[1] == booter.TOP_RIGHT[1]):
-        xy_filtered = x_filtered.filter(data.lng >= bottomleft[1]).filter(data.lng <= topright[1])
+        xy_filtered = x_filtered.filter(data.lat >= bottomleft[1]).filter(data.lat <= topright[1])
     else:
-        xy_filtered = x_filtered.filter(data.lng >= bottomleft[1]).filter(data.lng < topright[1])
+        xy_filtered = x_filtered.filter(data.lat >= bottomleft[1]).filter(data.lat < topright[1])
 
     tile = {"coords": (bottomleft, topright), "data": xy_filtered}
-    
     return tile
 
 def _extract_tile_topic(tile):
@@ -192,13 +191,13 @@ def _filter_area_data(bottomleft, topright):
     """
 
     area = {"coords": (bottomleft, topright), "data": []}
-    print(area)
 
     i = bottomleft[0] - ((int(bottomleft[0]*booter.MULT) % int(booter.TILE_SIZE*booter.MULT))/booter.MULT)
     while (i < topright[0]):
         j = bottomleft[1] - ((int(bottomleft[1]*booter.MULT) % int(booter.TILE_SIZE*booter.MULT))/booter.MULT)
         while (j < topright[1]):
             key = str(i)+"X"+str(j)
+            print(key)
             value = booter.REDIS.get(key)
             if value:
                 area["data"].append(json.loads(value))

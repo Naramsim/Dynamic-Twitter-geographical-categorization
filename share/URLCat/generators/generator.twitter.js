@@ -1,7 +1,7 @@
 var fs = require('fs');
 var secret = require('./secret')
 
-var Twit = require('twit');
+var Twit = require('../../../../twit');
 
 var T = new Twit(secret);
 var italyBoundings = [ 9.53, 36.14, 17.13, 48.19 ];
@@ -56,8 +56,8 @@ function startStreaming() {
             // or the name of the place is not the state itself
             if ( (topleft[0] - bottomright[0] <= 1) || placeName !== state) {
                 //console.log("ok")
-                lat = +((topleft[0] + bottomright[0]) / 2).toFixed(5);
-                lng = +((topleft[1] + bottomright[1]) / 2).toFixed(5);
+                lng = +((topleft[0] + bottomright[0]) / 2).toFixed(5);
+                lat = +((topleft[1] + bottomright[1]) / 2).toFixed(5);
             }
         } else {
             console.log(tweet);
@@ -65,7 +65,7 @@ function startStreaming() {
 
         if (topics.length > 0 && lng) {
             topicsList = topics.map(item => item.keyword);
-            console.log(`${lng}, ${lat}: ${topicsList}`);
+            console.log(`${lat}, ${lng}: ${topicsList}`);
             tweets.push({lat, lng, topics});
         }
     })
