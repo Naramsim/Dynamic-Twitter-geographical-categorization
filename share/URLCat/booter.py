@@ -9,6 +9,7 @@ GENERATE = False
 BOTTOM_LEFT = None
 TOP_RIGHT = None
 TILE_SIZE = None
+TOTAL = None
 
 REDIS = None
 CONTEXT = None
@@ -24,15 +25,16 @@ def parse():
     global BOTTOM_LEFT
     global TOP_RIGHT
     global TILE_SIZE
+    global TOTAL
 
     parser = argparse.ArgumentParser(description="compute the most relevant topics in a custom grid within a square geographic area", formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30))
     parser.add_argument("-v", "--version", action="version", version="0.0.0")
 
-    parser.add_argument("bottomleftx", type=_positive_float, help="the x coordinate of the bottomleft vertex of the main geographic area")
-    parser.add_argument("bottomlefty", type=_positive_float, help="the y coordinate of the bottomleft vertex of the main geographic area")
-    parser.add_argument("toprightx", type=_positive_float, help="the x coordinate of the topright vertex of the main geographic area")
-    parser.add_argument("toprighty", type=_positive_float, help="the y coordinate of the topright vertex of the main geographic area")
-    parser.add_argument("tilesize", type=_positive_float, help="the size of each square tile that forms the grid within the main geographic area")
+    parser.add_argument("bottomleftx", type=_is_float, help="the x coordinate of the bottomleft vertex of the main geographic area")
+    parser.add_argument("bottomlefty", type=_is_float, help="the y coordinate of the bottomleft vertex of the main geographic area")
+    parser.add_argument("toprightx", type=_is_float, help="the x coordinate of the topright vertex of the main geographic area")
+    parser.add_argument("toprighty", type=_is_float, help="the y coordinate of the topright vertex of the main geographic area")
+    parser.add_argument("tilesize", type=_is_float, help="the size of each square tile that forms the grid within the main geographic area")
     parser.add_argument("-g", "--generate", action="store_true", help="generate a new grid in the specified area")
 
     args = parser.parse_args()
@@ -41,6 +43,7 @@ def parse():
     BOTTOM_LEFT = (args.bottomleftx, args.bottomlefty)
     TOP_RIGHT = (args.toprightx, args.toprighty)
     TILE_SIZE = args.tilesize
+    TOTAL = ((TOP_RIGHT[0]-BOTTOM_LEFT[0])/TILE_SIZE) * ((TOP_RIGHT[1]-BOTTOM_LEFT[1])/TILE_SIZE)
 
 def init_redis(host="127.0.0.1", port=6379):
     """
@@ -66,7 +69,7 @@ def init_context():
     CONTEXT = SparkContext()
     CONTEXT.setLogLevel("WARN")
 
-def _positive_float(value):
+def _is_float(value):
     """
     Checks that the provided float value is positive.
 
@@ -75,10 +78,10 @@ def _positive_float(value):
     :return: The unchanged float value.
 
     :raise ArgumentTypeError: If the float value is negative.
+
+    :todo: change docs
     """
 
     number = float(value)
-    if number < 0:
-        raise argparse.ArgumentTypeError("number must be positive")
 
     return number

@@ -8,6 +8,8 @@ import booter
 import log
 
 
+COUNT = 0
+
 def build_grid():
     """
     Builds the initial grid within the main map area, then used by the categorization algorithm.
@@ -110,12 +112,12 @@ def _compute_tile_topic(data, bottomleft, topright):
     :todo: Switch to a lat,long coordinates system.
     s debug: The coordinates specifying the Tile, and the computed most relevant topic within it.
     """
-    #print(data.select("topics").collect())
+    
     tile = _filter_tile_data(data, bottomleft, topright)
     tile = _extract_tile_topic(tile)
 
+    _print_status()
     if tile:
-        #print("{}: {}".format(tile["coords"], tile["topics"]))
         return tile
 
 def _filter_tile_data(data, bottomleft, topright):
@@ -164,6 +166,17 @@ def _extract_tile_topic(tile):
         tile = False
 
     return tile
+
+def _print_status():
+    """
+    """
+
+    global COUNT
+
+    COUNT += 1
+    percentage = round(COUNT/booter.TOTAL*100, 2)
+    print("{}%: {}/{}".format(percentage, COUNT, int(booter.TOTAL)))
+
 
 def compute_area(bottomleft, topright):
     """
