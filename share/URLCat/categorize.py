@@ -1,5 +1,6 @@
 import argparse
 import json
+from operator import itemgetter
 import re
 
 from pyspark.sql import SparkSession
@@ -233,11 +234,13 @@ def _extract_area_topic(area):
     reduced_topics = mapped_topics.reduceByKey(lambda prv, nxt: round(prv+nxt, 2))
 
     area["topics"] = reduced_topics.collect()
-    del area["data"]
 
     if area["topics"]:
-        area["main"] = max(area["topics"], key=(lambda item: item[1]))
+        area["main"] = max(area["topics"], key=itemgetter(1))
     else:
         area = False
+
+    area["topics"] = sorted(filter(lambda topic: topic[1] > 4, area["topics"]), key=itemgetter(1), reverse=True)
+    del area["data"]
 
     return area
