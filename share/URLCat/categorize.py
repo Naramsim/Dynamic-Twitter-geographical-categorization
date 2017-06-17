@@ -18,7 +18,7 @@ def build_grid():
     s log: When the grid has been correctly built.
     """
 
-    data = _load_data("file:///opt/hdfs/URLCat/data/topics.twitter.json")
+    data = _load_data("file:///opt/hdfs/URLCat/data/topics.fake.json")
     grid = _compute_grid(data)
     _save_grid(grid)
 

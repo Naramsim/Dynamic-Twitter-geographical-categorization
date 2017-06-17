@@ -4,14 +4,14 @@ var fake = [];
 
 for (var index = 0; index < 100000; index++) {
     fake.push({
-        lat: +Math.random().toFixed(2),
-        lng: +Math.random().toFixed(2),
+        lat: +Math.random().toFixed(2)*100,
+        lng: +Math.random().toFixed(2)*100,
         topics: [
-            { keyword: keywords[Math.floor(Math.random()*keywords.length)], weight: +Math.random().toFixed(2) },
-            { keyword: keywords[Math.floor(Math.random()*keywords.length)], weight: +Math.random().toFixed(2) },
-            { keyword: keywords[Math.floor(Math.random()*keywords.length)], weight: +Math.random().toFixed(2) }
+            { keyword: keywords[Math.floor(Math.random()*keywords.length)], weight: 1 },
+            { keyword: keywords[Math.floor(Math.random()*keywords.length)], weight: 1 },
+            { keyword: keywords[Math.floor(Math.random()*keywords.length)], weight: 1 }
         ]
     });
 }
 
-fs.writeFileSync('./share/URLCat/topics.fake.json', JSON.stringify(fake));
+fs.writeFileSync('../data/topics.fake.json', JSON.stringify(fake));

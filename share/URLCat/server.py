@@ -11,7 +11,10 @@ booter.init_redis("10.0.75.2")
 booter.init_context()
 
 if booter.GENERATE:
+    start = time.time()
     categorize.build_grid()
+    end = time.time()
+    print(end-start)
 
 app = Flask(__name__)
 
