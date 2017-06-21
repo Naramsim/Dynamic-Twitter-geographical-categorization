@@ -18,7 +18,7 @@ def build_grid():
     s log: When the grid has been correctly built.
     """
 
-    data = _load_data("file:///opt/hdfs/URLCat/data/topics.fake.json")
+    data = _load_data("file:///opt/hdfs/URLCat/data/topics.twitter.json")
     grid = _compute_grid(data)
     _save_grid(grid)
 
@@ -237,10 +237,12 @@ def _extract_area_topic(area):
 
     if area["topics"]:
         area["main"] = max(area["topics"], key=itemgetter(1))
+        area["topics"] = sorted(filter(lambda topic: topic[1] > 4, area["topics"]), key=itemgetter(1), reverse=True)
+        del area["data"]
     else:
         area = False
-
-    area["topics"] = sorted(filter(lambda topic: topic[1] > 4, area["topics"]), key=itemgetter(1), reverse=True)
-    del area["data"]
+    print(area)
+    
+    
 
     return area
