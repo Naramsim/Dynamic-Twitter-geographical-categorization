@@ -23,7 +23,7 @@ node /app/app/generators/generator.twitter.js
 ```
 ./scripts/attach
 cd /opt/hdfs/app
-spark-submit server.py bottom_left_lng bottom_left_lat top_right_lng top_right_lat size [-g]
+spark-submit --master spark://master:7077 server.py bottom_left_lng bottom_left_lat top_right_lng top_right_lat size [-g]
 # i.e.: spark-submit server.py 9 36 17 48 1 -g will parse data for Italy
 ```
 
