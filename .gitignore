@@ -2,7 +2,7 @@ share/name
 share/checkpoint
 share/data
 share/redis_data
-share/URLCat/data/*.json
+share/app/data/*.json
 node_modules
 secret.json
 *.pyc

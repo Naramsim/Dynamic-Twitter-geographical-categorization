@@ -1,1 +1,0 @@
-docker exec -it urlcategorization_master_1 bash

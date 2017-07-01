@@ -44,4 +44,4 @@ RUN echo '#!/usr/bin/env bash' > /usr/bin/master \
   && chmod +x /usr/bin/worker
 
 # Custom redis calls
-RUN pip install redis hiredis Flask
+RUN pip install redis hiredis Flask colorclass

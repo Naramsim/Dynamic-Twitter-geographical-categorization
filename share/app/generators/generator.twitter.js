@@ -1,7 +1,7 @@
 var fs = require('fs');
 var secret = require('./secret')
 
-var Twit = require('../../../../twit');
+var Twit = require('twit');
 
 var T = new Twit(secret);
 var italyBoundings = [ 9.53, 36.14, 17.13, 48.19 ];

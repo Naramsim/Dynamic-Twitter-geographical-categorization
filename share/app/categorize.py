@@ -18,13 +18,13 @@ def build_grid():
     s log: When the grid has been correctly built.
     """
 
-    data = _load_data("file:///opt/hdfs/URLCat/data/topics.twitter.json")
+    data = _load_data("file:///opt/hdfs/app/data/topics.twitter.json")
     grid = _compute_grid(data)
     _save_grid(grid)
 
     log.success("grid built")
 
-def _load_data(path="file:///opt/hdfs/URLCat/data/topics.json"):
+def _load_data(path="file:///opt/hdfs/app/data/topics.json"):
     """
     Loads the data from a .json file. See https://www.supergloo.com/fieldnotes/spark-sql-json-examples/ and http://stackoverflow.com/a/7889243/3482533.
 

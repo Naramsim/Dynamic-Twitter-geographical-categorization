@@ -5,6 +5,7 @@ services:
     build: .
     command: start-spark master
     hostname: master
+    container_name: app
     ports:
       - "5000:5000"
       - "6066:6066"
@@ -14,6 +15,7 @@ services:
     volumes:
       - ./share:/opt/hdfs
     cpuset: "0"
+  # Use this entry if you want to "scale"
   # worker:
   #   build: .
   #   command: start-spark worker master
@@ -54,3 +56,8 @@ services:
       - './share/redis_data:/bitnami/redis'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+  node:
+    image: 'node:latest'
+    container_name: node
+    volumes:
+      - './share:/app'
